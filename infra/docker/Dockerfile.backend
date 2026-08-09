@@ -1,0 +1,33 @@
+# Stage 1: Build the TypeScript backend application
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Enable dependency caching
+COPY package*.json ./
+RUN npm ci
+
+# Copy files and build TS
+COPY . .
+RUN npm run build
+
+# Prune development dependencies
+RUN npm prune --production
+
+# Stage 2: Minimal final runtime image
+FROM node:20-alpine
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Copy node_modules and compiled output from builder
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./package.json
+
+# Use built-in unprivileged node user
+USER node
+
+EXPOSE 5000
+
+CMD ["node", "dist/index.js"]

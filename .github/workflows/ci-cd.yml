@@ -1,0 +1,136 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 1. Continuous Integration (Build, Lint, Test)
+  ci:
+    name: Build & Test Validation
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # Frontend CI Validation
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint Frontend
+        working-directory: ./frontend
+        run: npm run lint || true # Oxlint check
+
+      # Backend CI Validation
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci --legacy-peer-deps
+
+      - name: Compile Backend TS
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Run Integration Tests
+        working-directory: ./backend
+        env:
+          NODE_ENV: test
+          MONGO_URI: mongodb://localhost:27017/ai-devops-interview-test
+          JWT_SECRET: ci_pipeline_jwt_secret_key_32_chars_long_minimum
+        run: npm test
+
+  # 2. Image Security Auditing (Build & Trivy Scan)
+  security-scan:
+    name: Docker Build & Security Scan
+    needs: ci
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Build images locally for scanning
+      - name: Build Backend Image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository }}/backend:${{ github.sha }} \
+            -f infra/docker/Dockerfile.backend \
+            backend/
+
+      - name: Build Frontend Image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository }}/frontend:${{ github.sha }} \
+            -f infra/docker/Dockerfile.frontend \
+            frontend/
+
+      # Scan images using Trivy security scanner
+      - name: Run Trivy Vulnerability Scan (Backend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+          format: 'table'
+          exit-code: '0' # Audit only, do not break build for base image warnings
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run Trivy Vulnerability Scan (Frontend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+  # 3. Continuous Deployment (Publish Images & Trigger Rollout)
+  cd:
+    name: Package Release & CD Trigger
+    needs: [ci, security-scan]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup mock container registry login
+      - name: Log in to GitHub Container Registry (GHCR)
+        run: |
+          echo "[CD] Mock Login: echo \${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u \${{ github.actor }} --password-stdin"
+          
+      # Build and push to registry
+      - name: Build and Push Docker Images (Mock)
+        run: |
+          echo "[CD] Tagging ghcr.io/${{ github.repository }}/backend:latest"
+          echo "[CD] Tagging ghcr.io/${{ github.repository }}/frontend:latest"
+          echo "[CD] Mock Push: docker push ghcr.io/${{ github.repository }}/backend:latest"
+          echo "[CD] Mock Push: docker push ghcr.io/${{ github.repository }}/frontend:latest"
+
+      # Trigger Kubernetes deployment rollout
+      - name: Trigger Kubernetes Rollout (Documentation Placeholder)
+        run: |
+          echo "[CD] Triggering rolling update on Kubernetes cluster..."
+          echo "Typical commands executed inside a GitOps context or direct deployment script:"
+          echo "1. Set image: kubectl set image deployment/backend-deployment backend=ghcr.io/${{ github.repository }}/backend:${{ github.sha }} -n devops-platform"
+          echo "2. Set image: kubectl set image deployment/frontend-deployment frontend=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }} -n devops-platform"
+          echo "3. Rollout status audit: kubectl rollout status deployment/backend-deployment -n devops-platform"
+          echo "Note: In GitOps patterns, we would update the image tag in our Helm/Kustomize repository, prompting ArgoCD or Flux to automatically reconcile and sync the new images into production."
