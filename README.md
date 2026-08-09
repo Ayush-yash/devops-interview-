@@ -14,11 +14,11 @@ graph TD
     Express -->|Auth / Validation| Middleware[RBAC / Zod Schemas]
     Middleware -->|Query Database| MongoDB[(MongoDB Registry)]
     
-    subgraph AI Agents Pipeline (Anthropic Claude)
+    subgraph Pipeline ["AI Agents Pipeline (Anthropic Claude)"]
         Interviewer[Interviewer Agent] -->|1. Generate Question| Claude[Claude 3.5 Haiku]
         Evaluator[Evaluator Agent] -->|2. Evaluate Solution| Claude
         Coach[Coach Agent] -->|3. Compile Career Roadmap| Claude
-    </div>
+    end
 
     Express -->|Track Session state| Interviewer
     Express -->|Verify answers & score| Evaluator
