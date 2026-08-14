@@ -4,7 +4,7 @@ A production-grade, multi-agent AI evaluation platform designed to conduct techn
 
 ---
 
-## Architecture Overview
+## 🏗️ Architecture Overview
 
 The system orchestrates three specialized AI agents (Interviewer, Evaluator, and Coach) using Anthropic Claude to drive the interview lifecycle:
 
@@ -19,6 +19,8 @@ graph TD
         Evaluator[Evaluator Agent] -->|2. Evaluate Solution| Claude
         Coach[Coach Agent] -->|3. Compile Career Roadmap| Claude
     end
+    
+    style Pipeline fill:#cb7f65,stroke:#b36b52,stroke-width:2px,color:#03A9F4
 
     Express -->|Track Session state| Interviewer
     Express -->|Verify answers & score| Evaluator
