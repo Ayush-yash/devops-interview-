@@ -4,7 +4,7 @@ A production-grade, multi-agent AI evaluation platform designed to conduct techn
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The system orchestrates three specialized AI agents (Interviewer, Evaluator, and Coach) using Anthropic Claude to drive the interview lifecycle:
 
