@@ -123,7 +123,10 @@ The codebase is fully optimized for PaaS deployment on Render.
    - Root Directory: `backend`
    - Build Command: `npm install && npm run build`
    - Start Command: `npm start`
-   - Add ENV variables: `MONGO_URI`, `JWT_SECRET`, `ANTHROPIC_API_KEY`.
+   - Add the following **Environment Variables**:
+     - `MONGO_URI` = Your MongoDB Atlas connection string (e.g., `mongodb+srv://<user>:<password>@cluster.mongodb.net/devops-db`). Ensure Network Access is set to allow all IPs (`0.0.0.0/0`) in Atlas.
+     - `JWT_SECRET` = A long, random string used to secure user sessions and passwords (e.g., `my_super_secure_secret_key_123`).
+     - `ANTHROPIC_API_KEY` = Your Claude API Key from the [Anthropic Console](https://console.anthropic.com/). This powers the AI agents.
 3. **Frontend**:
    - Create a **Static Site** on Render.
    - Root Directory: `frontend`
