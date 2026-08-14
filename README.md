@@ -121,7 +121,7 @@ The codebase is fully optimized for PaaS deployment on Render.
 2. **Backend**:
    - Create a **Web Service** on Render.
    - Root Directory: `backend`
-   - Build Command: `npm install && npm run build`
+   - Build Command: `npm install --legacy-peer-deps && npm run build`
    - Start Command: `npm start`
    - Add the following **Environment Variables**:
      - `MONGO_URI` = Your MongoDB Atlas connection string (e.g., `mongodb+srv://<user>:<password>@cluster.mongodb.net/devops-db`). Ensure Network Access is set to allow all IPs (`0.0.0.0/0`) in Atlas.
@@ -130,7 +130,7 @@ The codebase is fully optimized for PaaS deployment on Render.
 3. **Frontend**:
    - Create a **Static Site** on Render.
    - Root Directory: `frontend`
-   - Build Command: `npm install && npm run build`
+   - Build Command: `npm install --legacy-peer-deps && npm run build`
    - Publish Directory: `dist`
    - Add ENV variable: `VITE_API_BASE_URL` = `https://your-backend-url.onrender.com`
 
