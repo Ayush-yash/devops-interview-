@@ -115,6 +115,22 @@ docker-compose up --build
    kubectl rollout status deployment/backend-deployment -n devops-platform
    ```
 
+### 4. Cloud Deployment (Render.com)
+The codebase is fully optimized for PaaS deployment on Render.
+1. **Database**: Use MongoDB Atlas (Free Tier) and get your connection string.
+2. **Backend**:
+   - Create a **Web Service** on Render.
+   - Root Directory: `backend`
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+   - Add ENV variables: `MONGO_URI`, `JWT_SECRET`, `ANTHROPIC_API_KEY`.
+3. **Frontend**:
+   - Create a **Static Site** on Render.
+   - Root Directory: `frontend`
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: `dist`
+   - Add ENV variable: `VITE_API_BASE_URL` = `https://your-backend-url.onrender.com`
+
 ---
 
 ## 🎯 Why This Project is Different
