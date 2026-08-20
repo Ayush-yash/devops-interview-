@@ -45,14 +45,6 @@ export const Home = () => {
 
         <div className="feature-grid-layout">
           <div className="glass-feature-card">
-            <div className="icon-glow-wrapper">🤖</div>
-            <h3 className="feature-card-heading">Multi-Agent AI</h3>
-            <p className="feature-card-text">
-              Independent Claude agents acting as Interviewer, Rigorous Evaluator, and Strategic Career Coach.
-            </p>
-          </div>
-
-          <div className="glass-feature-card">
             <div className="icon-glow-wrapper">🎯</div>
             <h3 className="feature-card-heading">Suspenseful MCQ Testing</h3>
             <p className="feature-card-text">
