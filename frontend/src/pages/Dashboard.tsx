@@ -58,6 +58,19 @@ export const Dashboard = () => {
     ? Math.round(completedSessions.reduce((acc, s) => acc + ((s.totalMarks / (s.totalQuestions * 10)) * 100), 0) / completedSessions.length)
     : 0;
 
+  const handleDeleteSession = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this session?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/api/session/${id}`, {
+        headers: { Authorization: `Bearer ${user?.token}` }
+      });
+      setSessions(prev => prev.filter(s => s._id !== id));
+    } catch (err) {
+      console.error('Failed to delete session', err);
+      alert('Failed to delete session');
+    }
+  };
+
   return (
     <div 
       className="dashboard-page-wrapper"
@@ -124,7 +137,7 @@ export const Dashboard = () => {
                       </div>
                     </div>
 
-                    <div className="score-pill-box">
+                    <div className="score-pill-box" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       {item.isCompleted ? (
                         <>
                           <div className="score-value-text">{percentage}% ({item.totalMarks}/{item.totalQuestions * 10})</div>
@@ -134,11 +147,27 @@ export const Dashboard = () => {
                           >
                             View Report ➔
                           </button>
+                          <button 
+                            onClick={() => handleDeleteSession(item._id)}
+                            style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1.2rem', padding: '4px' }}
+                            title="Delete Session"
+                          >
+                            🗑️
+                          </button>
                         </>
                       ) : (
-                        <span style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '4px 8px', borderRadius: '6px' }}>
-                          In Progress ({item.questionsAnswered}/{item.totalQuestions})
-                        </span>
+                        <>
+                          <span style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '4px 8px', borderRadius: '6px' }}>
+                            In Progress ({item.questionsAnswered}/{item.totalQuestions})
+                          </span>
+                          <button 
+                            onClick={() => handleDeleteSession(item._id)}
+                            style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1.2rem', padding: '4px' }}
+                            title="Delete Session"
+                          >
+                            🗑️
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
